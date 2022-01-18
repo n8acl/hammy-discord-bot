@@ -23,6 +23,8 @@ import json
 import requests
 import discord
 import time
+import xml.etree.ElementTree as et
+from urllib import request, error
 from datetime import datetime, date, time, timedelta
 from discord.ext import commands
 from geopy.geocoders import Nominatim
@@ -46,7 +48,6 @@ radioid_dmrid_url = radioid_base_url + "/dmr/user"
 radioid_nxdnid_url = radioid_base_url + "/nxdn/user"
 geolocator = Nominatim(user_agent="aprstweet")
 debug = False
-# openweathermapkey = "YOUR_OPENWEATHERMAP_KEY_HERE"
 
 #############################
 # Define Functions
@@ -58,16 +59,21 @@ def is_json(myjson):
         return False
     return True
 
-def get_api_data(url):
-    # get JSON data from api's with just a URL
-    return requests.get(url=url).json()
+def get_api_data(url,data_type):
+    if data_type == 'json':
+        # get JSON data from api's with just a URL
+        return requests.get(url=url).json()
+    if data_type =='xml':
+        # get XML data from api's with just a URL
+        return et.parse(request.urlopen(url))
 
-def get_api_data_payload(url, payload):
-    # get JSON data from api's with a payload
-    if is_json(requests.get(url=url,params=payload)):
-        return(requests.get(url=url,params=payload).json())
-    else:
-        return 0
+def get_api_data_payload(url, payload,data_type):
+    if data_type == 'json':
+        # get JSON data from api's with a payload
+        if is_json(requests.get(url=url,params=payload)):
+            return(requests.get(url=url,params=payload).json())
+        else:
+            return 0
 
 def get_location(lat,lng):
     # Reverse geocode with openstreetmaps for location
@@ -117,7 +123,7 @@ def get_aprs_position(callsign):
     'format': 'json'
     }
 
-    data = get_api_data_payload(aprsfi_api_base_url,position_payload)
+    data = get_api_data_payload(aprsfi_api_base_url,position_payload,'json')
 
     if data["found"] == 0:
         status = ('No data found for callsign %s' % callsign.upper())
@@ -140,7 +146,6 @@ def get_aprs_position(callsign):
         
         status = status + " | Grid: " + get_grid(float(lat),float(lng))
 
-        #status = status + " | " + datetime.datetime.fromtimestamp(int(lasttime)).strftime('%H:%M:%S') + \
         status = status + " | " + datetime.fromtimestamp(int(lasttime)).strftime('%H:%M:%S') + \
             " | https://aprs.fi/" + station
 
@@ -157,33 +162,111 @@ def append_data(record_name,fielddata):
 def lookup_calldata(callsign):
     callsigndata = ""
     calldata = []
+    source = ''
+
     radioid_payload = {
         "callsign": callsign
     }
-    callbook_url = "https://callook.info/" + callsign + "/json"
 
-    callsign_data = get_api_data(callbook_url)
-    dmr_id_data = get_api_data_payload(radioid_dmrid_url,radioid_payload)
-    nxdn_id_data = get_api_data_payload(radioid_nxdnid_url,radioid_payload)
- 
-    calldata.append(append_data("Callsign:",callsign_data['current']['callsign']))
+    # Let's get callbook data!
+    # First, let's check Callook.info for the callsign data
 
-    if callsign_data['previous']['callsign'] != '':
-        calldata.append(append_data("Previous:",callsign_data['previous']['callsign']))
-    if callsign_data['type'] == 'PERSON':
-        calldata.append(append_data("Class:",callsign_data['current']['operClass'].title()))
-    if callsign_data['type'] == 'CLUB':
-        calldata.append(append_data("Trustee:",callsign_data['trustee']['name'].title() + ", "+ callsign_data['trustee']['callsign']))
-    
-    calldata.append(append_data("Name:",callsign_data['name'].title()))
-    calldata.append(append_data("Address:",callsign_data['address']['line1'].title()))
-    calldata.append(append_data("",callsign_data['address']['line2'].title()))
-    calldata.append(append_data("Grid Square:",callsign_data['location']['gridsquare']))
-    calldata.append(append_data("Grant Date:",callsign_data['otherInfo']['grantDate']))
-    calldata.append(append_data("Expires:",callsign_data['otherInfo']['expiryDate']))
+    callook_url = "https://callook.info/" + callsign + "/json"
+    callsign_data = get_api_data(callook_url,'json')
 
-    for x in range(len(calldata)):
-        callsigndata = callsigndata + calldata[x][0] + " " + calldata[x][1] + linefeed
+    if callsign_data["status"] == 'VALID':
+
+        calldata.append(append_data("Callsign:",callsign_data['current']['callsign']))
+
+        if callsign_data['previous']['callsign'] != '':
+            calldata.append(append_data("Previous:",callsign_data['previous']['callsign']))
+        if callsign_data['type'] == 'PERSON':
+            calldata.append(append_data("Class:",callsign_data['current']['operClass'].title()))
+        if callsign_data['type'] == 'CLUB':
+            calldata.append(append_data("Trustee:",callsign_data['trustee']['name'].title() + ", "+ callsign_data['trustee']['callsign']))
+        
+        calldata.append(append_data("Name:",callsign_data['name'].title()))
+        calldata.append(append_data("Address:",callsign_data['address']['line1'].title()))
+        calldata.append(append_data("",callsign_data['address']['line2'].title()))
+        calldata.append(append_data("Grid Square:",callsign_data['location']['gridsquare']))
+        calldata.append(append_data("Grant Date:",callsign_data['otherInfo']['grantDate']))
+        calldata.append(append_data("Expires:",callsign_data['otherInfo']['expiryDate']))
+
+        source = 'Callook.info'
+
+    # if the status came back invalid, so no data was found, let's try HamQTH.com for the data. 
+    # This will include International callsign searches.
+    else:
+        prefix = '{https://www.hamqth.com}'
+        callsign_result = ''
+        name = ''
+        address = ''
+        city = ''
+        state = ''
+        zip = ''
+        country = ''
+        grid = ''
+        hamqth_sessionid = ''
+
+        hamqth_getsession_url = "https://www.hamqth.com/xml.php?u=" + config.hamqth_username + "&p=" + config.hamqth_password
+        session_data = get_api_data(hamqth_getsession_url,'xml') 
+
+        root = session_data.getroot()
+
+        for item in root.findall(prefix + 'session'):
+            for child in item:
+                if child.tag == prefix + 'session_id':
+                    hamqth_sessionid = child.text
+
+        if hamqth_sessionid != '':
+            hamqth_lookup_url = 'https://www.hamqth.com/xml.php?id='+ hamqth_sessionid + '&callsign=' + callsign  + '&prg=Hammy_Discord_Bot'
+
+            hamqth_data = get_api_data(hamqth_lookup_url,'xml')
+
+            root = hamqth_data.getroot()
+
+            # for item in root.findall(prefix + 'search'):
+            #     for child in item:
+            #         print(child.tag)
+            #         print(child.text)
+
+            for item in root.findall(prefix + 'search'):
+                for child in item:
+                    if child.tag == prefix + 'callsign':
+                        callsign_result = child.text.upper()
+                    elif child.tag == prefix + 'adr_name':
+                        name = child.text.title()
+                    elif child.tag == prefix + 'adr_street1':
+                        address = child.text.title()
+                    elif child.tag == prefix + 'adr_city':
+                        city = child.text.title()
+                    elif child.tag == prefix + 'us_state':
+                        state = child.text.upper()
+                    elif child.tag == prefix + 'adr_zip':
+                        zip = child.text
+                    elif child.tag == prefix + 'country':
+                        country = child.text
+                    elif child.tag == prefix + 'grid':
+                        grid = child.text
+
+            calldata.append(append_data("Callsign:",callsign_result))
+            calldata.append(append_data("Name:",name))
+            calldata.append(append_data("Address:",address))
+            calldata.append(append_data("",city + ', ' + state + ' ' + zip))
+            calldata.append(append_data("",country))
+            calldata.append(append_data("Grid Square:",grid))
+
+            source = 'HamQTH.com'
+
+    if len(calldata) <=0:
+        callsigndata = "No Callsign Data found." + linefeed
+    else:
+        for x in range(len(calldata)):
+            callsigndata = callsigndata + calldata[x][0] + " " + calldata[x][1] + linefeed
+
+    # Now let's get DMR ID Data
+
+    dmr_id_data = get_api_data_payload(radioid_dmrid_url,radioid_payload,'json')
 
     if len(dmr_id_data) > 0:
 
@@ -197,6 +280,10 @@ def lookup_calldata(callsign):
                 callsigndata = callsigndata + str(dmr_id_data['results'][i]['id'])
         
         callsigndata = callsigndata + linefeed
+        
+    # Now Let's Get NXDN ID Data
+
+    nxdn_id_data = get_api_data_payload(radioid_nxdnid_url,radioid_payload,'json')
 
     if len(nxdn_id_data) > 0:
 
@@ -210,8 +297,10 @@ def lookup_calldata(callsign):
                 callsigndata = callsigndata + str(nxdn_id_data['results'][i]['id'])
         
         callsigndata = callsigndata + linefeed
+        
+    callsigndata = callsigndata + "Source: " + source + linefeed
 
-
+    # Return whatever data we have found.
     return callsigndata
 
 
@@ -224,6 +313,7 @@ async def on_ready():
 
 @bot.command(name='callsign')
 async def callsign(ctx, callsign):
+
     embed = discord.Embed(title = "Callbook Data for " + callsign.upper(),
         description=lookup_calldata(callsign.lower()),
     )
@@ -237,7 +327,7 @@ async def dmr(ctx, dmrid):
     "id": dmrid
     } 
 
-    dmr_id_data = get_api_data_payload(radioid_dmrid_url,radioid_payload)
+    dmr_id_data = get_api_data_payload(radioid_dmrid_url,radioid_payload,'json')
 
     if int(dmr_id_data['count']) > 0 :
         embed = discord.Embed(title = "Callbook Data for " + dmr_id_data['results'][0]['callsign'].upper(),
@@ -259,7 +349,7 @@ async def nxdn(ctx, nxdnid):
     "id": nxdnid
     } 
 
-    nxdn_id_data = get_api_data_payload(radioid_nxdnid_url,radioid_payload)
+    nxdn_id_data = get_api_data_payload(radioid_nxdnid_url,radioid_payload,'json')
 
     if int(dmr_id_data['count']) > 0 :
         embed = discord.Embed(title = "Callbook Data for " + nxdn_id_data['results'][0]['callsign'].upper(),
@@ -284,8 +374,9 @@ async def aprs(ctx, callsign):
 
 @bot.command(name='hammy')
 async def hammy(ctx):
+    
     cmd_list = """
-    /callsign <callsign> - Returns callbook data for the callsign queried, including DMR ID and NXDNID, in a DM. ex: /callsign W1AW
+    /callsign <callsign> - Returns callbook data for the callsign queried, including DMR ID and NXDNID, in a DM. ex: /callsign W1AW.
 
     /dmr <dmrid> - Returns callbook data for the DMR ID queried, including DMR ID and NXDNID, in a DM. ex: /dmr 1234567
 
@@ -293,7 +384,9 @@ async def hammy(ctx):
 
     /aprs <callsign+ssid> - Returns last postion beaconed for the station queried. Note that SSID is optional, but it will not do a wildcard or fuzzy search. ex: /aprs W1AW or /aprs W1AW-9
 
-    /hammy - Returns this help text. 
+    /hammy - This help text
+
+    More information about me can be found at https://github.com/n8acl/hammy-discord-bot
     """
 
     embed = discord.Embed(title = "Hammy Commands",

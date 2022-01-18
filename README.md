@@ -15,6 +15,7 @@ This bot pulls data from the following locations:
 | Service | Description | Website |
 |---------|---------|---------|
 |Callook.info|Used for Call Book data lookup|[https://callook.info/](https://callook.info/)|
+|HamQTH.com|Used for Call book data lookup for callsigns not found at callook.info|[https://www.hamqth.com](https://www.hamqth.com)
 |APRS.FI|Used for APRS Data lookip|[https://aprs.fi](https://aprs.fi)|
 |Radioid.net|Used for DMR/NXDN ID Lookups|[https://radioid.net](https://radioid.net)|
 
@@ -36,7 +37,9 @@ If you want to run this on a Windows or Mac machine, you will need to install Py
 The first step in this process will be obtaining the API keys that you need. 
 
 ##### APRS.fi API Key
-* First and foremost, you will need an [APRS.fi](https://aprs.fi) account. On your account page is the API key you will need. Without this, nothing else will work and there is no point to the script :).
+* First and foremost, you will need an [APRS.fi](https://aprs.fi) account. On your account page is the API key you will need.
+##### HamQTH.com Login
+* To be able to use HamQTH.com for searching (especaillay International Callsigns), you will need to obtain a username and password for HamQTH.com. [Click here to register.](https://www.hamqth.com/register.php)
 
 ##### Discord
 
@@ -151,5 +154,7 @@ If you reach out to me and have an error, please include what error you are gett
 ---
 
 ## Change Log
+
+* 01/18/2022 - Added HamQTH.com for international callsign lookups. If a callsign is not found at callook.info, it will then try to retreive information on that callsign from HamQTH.com.
 
 * 01/15/2022 - Initial Release 1.0
