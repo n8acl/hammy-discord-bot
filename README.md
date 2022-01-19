@@ -113,7 +113,7 @@ cd hammy-discord-bot
 python3 hammy_bot.py
 ```
 
-It should say "<bot Name> has connected to Discord". Once that is done, hit CTRL-A-D to disconnect from the screen session. If something ever happens, you can reconnect to the session by typing:
+It should say "< Bot Name > has connected to Discord". Once that is done, hit CTRL-A-D to disconnect from the screen session. If something ever happens, you can reconnect to the session by typing:
 
 ```bash
 screen -R hammy-discord-bot
