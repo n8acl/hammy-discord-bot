@@ -2,7 +2,7 @@
 
 # Hammy, a Ham Radio Discord Bot
 # Developed by: Jeff Lehman, N8ACL
-# Current Version: 1.0
+# Current Version: 2.0
 # https://github.com/n8acl/hammy-discord-bot
 
 # Questions? Comments? Suggestions? Contact me one of the following ways:
@@ -13,7 +13,6 @@
 # Website: https://www.qsl.net/n8acl
 
 ###################   DO NOT CHANGE BELOW   #########################
-
 
 #############################
 # Import Libraries
@@ -43,6 +42,7 @@ bot = commands.Bot(command_prefix='/')
 linefeed = "\r\n"
 degree_sign= u'\N{DEGREE SIGN}'
 aprsfi_api_base_url = "https://api.aprs.fi/api/get"
+repeaterbook_base_url = 'https://www.repeaterbook.com/api/export.php'
 radioid_base_url = "https://database.radioid.net/api"
 radioid_dmrid_url = radioid_base_url + "/dmr/user"
 radioid_nxdnid_url = radioid_base_url + "/nxdn/user"
@@ -225,11 +225,6 @@ def lookup_calldata(callsign):
 
             root = hamqth_data.getroot()
 
-            # for item in root.findall(prefix + 'search'):
-            #     for child in item:
-            #         print(child.tag)
-            #         print(child.text)
-
             for item in root.findall(prefix + 'search'):
                 for child in item:
                     if child.tag == prefix + 'callsign':
@@ -372,6 +367,65 @@ async def aprs(ctx, callsign):
     )
     await ctx.send(embed = embed)
 
+@bot.command(name='repeater')
+async def repeater(ctx, *args):
+    row = []
+    repeater_data = []
+    data_file = os.path.dirname(os.path.abspath(__file__)) + "/repeaterdata_" + ctx.message.author.name + ".txt"
+
+    if os.path.exists(data_file):
+        os.remove(data_file)
+
+    rb_url = repeaterbook_base_url + "?"
+
+    for arg in args:
+        rb_url = rb_url + arg.replace(' ','%20').lower() + '&'
+
+    data = get_api_data(rb_url,'json')
+
+    repeater_count = data['count']
+
+    x = 0
+
+    for results in data['results']:
+        if x != repeater_count:
+            row = []
+
+            if 'Frequency' in results: 
+                row.append(results['Frequency'])
+            if 'Callsign' in results:
+                row.append(results['Callsign'])
+            if 'PL' in results:
+                row.append(results['PL'])
+            if 'Nearest City' in results:                      
+                row.append(results['Nearest City'])
+            if 'County' in results:   
+                row.append(results['County'])
+            if 'State' in results:   
+                row.append(results['State'])
+            if 'State ID' in results:   
+                row.append('https://www.repeaterbook.com/repeaters/details.php?state_id=' + str(results['State ID']) + '&ID=' + str(results['Rptr ID']))
+
+            repeater_data.append(row)
+
+            x = x+1
+  
+    if len(repeater_data) > 0:
+        message = t2a(
+        header = ["Frequency","Callsign","PL", "City", "County", "State", "Details"],
+        body = sorted(repeater_data,key=lambda x:(x[4], float(x[0]))),
+        alignments = [Alignment.LEFT]*7,
+        style=PresetStyle.ascii_borderless
+        )
+
+        with open(data_file,"w") as f:
+            f.write(message)
+
+    else:
+        message = "No Data Found"
+
+    await ctx.send(file=discord.File(data_file))
+
 @bot.command(name='hammy')
 async def hammy(ctx):
     
@@ -379,10 +433,28 @@ async def hammy(ctx):
     /callsign <callsign> - Returns callbook data for the callsign queried, including DMR ID and NXDNID, in a DM. ex: /callsign W1AW.
 
     /dmr <dmrid> - Returns callbook data for the DMR ID queried, including DMR ID and NXDNID, in a DM. ex: /dmr 1234567
+        Note: This does not return information about a Talkgroup ID, only a DMR ID linked to a callsign.
 
     /nxdn <nxdnid> - Returns callbook data for the NXDN ID queried, including DMR ID and NXDNID, in a DM. ex: /nxdn 1234567
+        Note: this does not return information about an NXDN Talkgroup, just an ID linked to a callsign.
 
     /aprs <callsign+ssid> - Returns last postion beaconed for the station queried. Note that SSID is optional, but it will not do a wildcard or fuzzy search. ex: /aprs W1AW or /aprs W1AW-9
+
+    /repeater - Does a search of the Repeaterbook database and returns repeater information based on the search. Requires one or more of the following parameters. 
+        Only supports North American Repeater Searches. This will create a txt file that can be downloaded, but each time the user runs the command, the existing file for that user
+        is overwritten.
+
+        Note: if a parameter needs a space in it, you will need to enclose the entire parameter in quotes (see example below)
+
+        Parameters:
+        callsign - Callsign of Repeater to search
+        city - City to search
+        state - State to search
+        county - County to search
+        frequency - Frequency to search
+        mode - Mode to search (DMR/D-star/P25/etc)
+
+        EX: /repeater "city=Las Vegas" callsign=wa1abc frequency=145.520
 
     /hammy - This help text
 

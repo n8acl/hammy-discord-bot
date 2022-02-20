@@ -4,7 +4,12 @@ Python based Ham Radio Callsign/APRS Discord lookup bot.
 ---
 # Description
 
-This is a Python based, self-hosted, Ham Radio Discord bot that can be added to Ham Radio Discord Servers to allow for Callbook data lookup as well as APRS position packet data. Note that currently this only pulls Callbook data for the United States.
+This is a Python based, self-hosted, Ham Radio Discord bot that can be added to Ham Radio Discord Servers to add some functionality for various Amatuer Radio related searches. 
+
+### Searches
+- Search for callsign and get callbook info.
+- Search for callsign+ssid on the APRS network to see the last beaconed packet by a station.
+- Search RepeaterBook.com for repeaters in a given search area.
 
 Note that this software is intended for use by Amateur Radio Operators only.
 
@@ -16,15 +21,16 @@ This bot pulls data from the following locations:
 |---------|---------|---------|
 |Callook.info|Used for Call Book data lookup|[https://callook.info/](https://callook.info/)|
 |HamQTH.com|Used for Call book data lookup for callsigns not found at callook.info|[https://www.hamqth.com](https://www.hamqth.com)
-|APRS.FI|Used for APRS Data lookip|[https://aprs.fi](https://aprs.fi)|
+|APRS.FI|Used for APRS Data lookup|[https://aprs.fi](https://aprs.fi)|
 |Radioid.net|Used for DMR/NXDN ID Lookups|[https://radioid.net](https://radioid.net)|
+|RepeaterBook.com|Used for Repeater lookups|[https://repeaterbook.com](https://repeaterbook.com)
 
 ---
 
 # Installation/Setup
 
 ### Installation Steps
-1) Obtain API Keys
+1) Obtain API Keys/Logins
 2) Install needed packages, clone Repo and install library dependencies
 3) Configure the script
 
@@ -32,7 +38,7 @@ Remember that all the commands shared here are for Linux. So if you want you can
 
 If you want to run this on a Windows or Mac machine, you will need to install Python3 and be familiar installing from a requirements.txt.
 
-### Obtaining API Keys
+### Obtaining API Keys/Logins
 
 The first step in this process will be obtaining the API keys that you need. 
 
@@ -133,9 +139,30 @@ All Commands can be issued from either a Direct Message or in a text channel, ho
 |/dmr < dmrid > | Returns callbook data for the DMR ID queried,<br>including DMR ID and NXDNID, in a DM.<br>This is useful to determine who is talking if you see a DMR ID<br>on your Radio that is not loaded into the radio contact list.|/dmr 1234567|
 |/nxdn < nxdnid > | Returns callbook data for the NXDN ID queried,<br>including DMR ID and NXDNID, in a DM.<br>This is useful to determine who is talking if you see a NXDN ID<br>on your Radio that is not loaded into the radio contact list.|/nxdn 1234567|
 |/aprs <callsign+ssid>|Returns last postion beaconed for the station queried.<br>Note that SSID is optional, but it will not do a<br>wildcard or fuzzy search.| /aprs W1AW<br>/aprs W1AW-9|
-|/hammy|Brings up help text with the above command list.|/hammy
+|/repeater <parameter>|Does a search of the Repeaterbook database and returns repeater information based on the search. (see below for more details)ß|/repeater "city=Las Vegas" callsign=wa1abc frequency=145.520|
+|/hammy|Brings up help text with the above command list.|/hammy|
 
+## Repeater Search Command
+To search for repeaters using RepeaterBook.com, it does require some specific paramters to work.
 
+The command does a search of the Repeaterbook database and returns repeater information based on the search. Requires one or more of the following parameters. 
+
+Only supports North American Repeater Searches. This will create a txt file that can be downloaded, but each time the user runs the command, the existing file for that user
+is overwritten.
+
+Note: if a parameter needs a space in it, you will need to enclose the entire parameter in quotes (see example below)
+
+```bash
+Parameters:
+callsign - Callsign of Repeater to search
+city - City to search
+state - State to search
+county - County to search
+frequency - Frequency to search
+mode - Mode to search (DMR/D-star/P25/etc)
+```
+
+EX: /repeater "city=Las Vegas" callsign=wa1abc frequency=145.520
 
 ---
 
@@ -154,6 +181,7 @@ If you reach out to me and have an error, please include what error you are gett
 ---
 
 ## Change Log
+* 02/19/2022 - Added ability to look up North American Repeaters via RepeaterBook.com
 
 * 01/18/2022 - Added HamQTH.com for international callsign lookups. If a callsign is not found at callook.info, it will then try to retreive information on that callsign from HamQTH.com.
 
