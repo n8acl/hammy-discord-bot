@@ -2,7 +2,7 @@
 
 # Hammy, a Ham Radio Discord Bot
 # Developed by: Jeff Lehman, N8ACL
-# Current Version: 2.0
+# Current Version: 3.0
 # https://github.com/n8acl/hammy-discord-bot
 
 # Questions? Comments? Suggestions? Contact me one of the following ways:
@@ -16,24 +16,24 @@
 
 #############################
 # Import Libraries
-import config
+import config as cfg
 import os
 import json
 import requests
-import discord
 import time
 import xml.etree.ElementTree as et
+import interactions # Discord library
 from urllib import request, error
 from datetime import datetime, date, time, timedelta
-from discord.ext import commands
 from geopy.geocoders import Nominatim
 from table2ascii import table2ascii as t2a, PresetStyle, Alignment
 
 
 #############################
 # Create Discord Bot
-TOKEN = config.discord_bot_token
-bot = commands.Bot(command_prefix='/')
+TOKEN = cfg.discord_bot_token
+server_id = int(cfg.discord_server_id)
+bot = interactions.Client(token=TOKEN)
 
 #############################
 # Define Variables
@@ -52,13 +52,6 @@ debug = False
 #############################
 # Define Functions
 
-def is_json(myjson):
-    try:
-        responses = myjson.json()
-    except ValueError as e:
-        return False
-    return True
-
 def get_api_data(url,data_type):
     if data_type == 'json':
         # get JSON data from api's with just a URL
@@ -67,13 +60,14 @@ def get_api_data(url,data_type):
         # get XML data from api's with just a URL
         return et.parse(request.urlopen(url))
 
-def get_api_data_payload(url, payload,data_type):
+def get_api_data_payload(url,payload,data_type):
+    # get JSON data from api's
     if data_type == 'json':
-        # get JSON data from api's with a payload
-        if is_json(requests.get(url=url,params=payload)):
-            return(requests.get(url=url,params=payload).json())
-        else:
+        try:
+            responses = requests.get(url=url,params=payload).json()
+        except ValueError as e:
             return 0
+        return responses
 
 def get_location(lat,lng):
     # Reverse geocode with openstreetmaps for location
@@ -119,13 +113,13 @@ def get_aprs_position(callsign):
     position_payload = {
     'name': callsign,
     'what': 'loc',
-    'apikey': config.aprsfikey,
+    'apikey': cfg.aprsfikey,
     'format': 'json'
     }
 
     data = get_api_data_payload(aprsfi_api_base_url,position_payload,'json')
 
-    if data["found"] == 0:
+    if len(data['found']) == 0:
         status = ('No data found for callsign %s' % callsign.upper())
     else:
         station = data["entries"][0]["name"]
@@ -298,136 +292,133 @@ def lookup_calldata(callsign):
     # Return whatever data we have found.
     return callsigndata
 
-
 #############################
 # Define Discord Bot Functions
 
-@bot.event
-async def on_ready():
-    print(f'{bot.user.name} has connected to Discord!')
 
-@bot.command(name='callsign')
-async def callsign(ctx, callsign):
+@bot.command(
+    name='callsign',
+    description="Lookup Callsign Data",
+    scope=server_id,
+    options = [
+        interactions.Option(
+            name="callsign",
+            description = "Callsign to search for",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ],
+    )
+async def callsign(ctx: interactions.CommandContext, callsign: str):
 
-    embed = discord.Embed(title = "Callbook Data for " + callsign.upper(),
+    await ctx.send("This will take a moment. I will send you a DM when I have the data ready!", ephemeral=True)
+
+    embed = interactions.Embed(title = "Callbook Data for " + callsign.upper(),
         description=lookup_calldata(callsign.lower()),
     )
 
-    await ctx.author.send(embed = embed)
+    await ctx.author.send(embeds = embed)
 
-@bot.command(name='dmr')
-async def dmr(ctx, dmrid):
+@bot.command(
+    name='dmr',
+    description='Look up Callsign by DMR ID',
+    scope=server_id,
+    options = [
+        interactions.Option(
+            name="dmrid",
+            description = "DMR ID to search for",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ],
+    )
+async def dmr(ctx: interactions.CommandContext, dmrid: str):
 
     radioid_payload = {
     "id": dmrid
     } 
 
+    await ctx.send("This will take a moment. I will send you a DM when I have the data ready!", ephemeral=True)
+
     dmr_id_data = get_api_data_payload(radioid_dmrid_url,radioid_payload,'json')
 
     if int(dmr_id_data['count']) > 0 :
-        embed = discord.Embed(title = "Callbook Data for " + dmr_id_data['results'][0]['callsign'].upper(),
+        embed = interactions.Embed(title = "Callbook Data for " + dmr_id_data['results'][0]['callsign'].upper(),
             description=lookup_calldata(dmr_id_data['results'][0]['callsign']),
         )
 
     else:
        
-        embed = discord.Embed(title = "No DMR ID's Found",
+        embed = interactions.Embed(title = "No DMR ID's Found",
             description="No ID's Found"
         )
 
-    await ctx.author.send(embed = embed)
+    await ctx.author.send(embeds = embed)
 
-@bot.command(name='nxdn')
-async def nxdn(ctx, nxdnid):
+@bot.command(
+    name='nxdn',
+    description='Look up Callsign by NXDN ID',
+    scope=server_id,
+    options = [
+        interactions.Option(
+            name="nxdnid",
+            description = "NXDN ID to search for",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ],
+    )
+async def nxdn(ctx: interactions.CommandContext, nxdnid: str):
 
     radioid_payload = {
     "id": nxdnid
     } 
 
+    await ctx.send("This will take a moment. I will send you a DM when I have the data ready!", ephemeral=True)
+
     nxdn_id_data = get_api_data_payload(radioid_nxdnid_url,radioid_payload,'json')
 
     if int(dmr_id_data['count']) > 0 :
-        embed = discord.Embed(title = "Callbook Data for " + nxdn_id_data['results'][0]['callsign'].upper(),
+        embed = interactions.Embed(title = "Callbook Data for " + nxdn_id_data['results'][0]['callsign'].upper(),
             description=lookup_calldata(nxdn_id_data['results'][0]['callsign']),
         )
 
     else:
        
-        embed = discord.Embed(title = "No NXDN ID's Found",
+        embed = interactions.Embed(title = "No NXDN ID's Found",
             description="No ID's Found"
         )
 
-    await ctx.author.send(embed = embed)
+    await ctx.author.send(embeds = embed)
 
-@bot.command(name='aprs')
-async def aprs(ctx, callsign):
+@bot.command(
+    name='aprs',
+    description='Find Last APRS Position for a Station',
+    scope=server_id,
+    options = [
+        interactions.Option(
+            name="callsign",
+            description = "Callsign+SSID of the station to look for",
+            type=interactions.OptionType.STRING,
+            required=True,
+        ),
+    ],
+    )
+async def aprs(ctx: interactions.CommandContext, callsign: str):
 
-    embed = discord.Embed(title = "Last APRS Position",
+    await ctx.send("This will take a moment. I will send you a DM when I have the data ready!", ephemeral=True)
+
+    embed = interactions.Embed(title = "Last APRS Position",
         description=get_aprs_position(callsign),
     )
-    await ctx.send(embed = embed)
+    await ctx.author.send(embeds = embed)
 
-@bot.command(name='repeater')
-async def repeater(ctx, *args):
-    row = []
-    repeater_data = []
-    data_file = os.path.dirname(os.path.abspath(__file__)) + "/repeaterdata_" + ctx.message.author.name + ".txt"
-
-    if os.path.exists(data_file):
-        os.remove(data_file)
-
-    rb_url = repeaterbook_base_url + "?"
-
-    for arg in args:
-        rb_url = rb_url + arg.replace(' ','%20').lower() + '&'
-
-    data = get_api_data(rb_url,'json')
-
-    repeater_count = data['count']
-
-    x = 0
-
-    for results in data['results']:
-        if x != repeater_count:
-            row = []
-
-            if 'Frequency' in results: 
-                row.append(results['Frequency'])
-            if 'Callsign' in results:
-                row.append(results['Callsign'])
-            if 'PL' in results:
-                row.append(results['PL'])
-            if 'Nearest City' in results:                      
-                row.append(results['Nearest City'])
-            if 'County' in results:   
-                row.append(results['County'])
-            if 'State' in results:   
-                row.append(results['State'])
-            if 'State ID' in results:   
-                row.append('https://www.repeaterbook.com/repeaters/details.php?state_id=' + str(results['State ID']) + '&ID=' + str(results['Rptr ID']))
-
-            repeater_data.append(row)
-
-            x = x+1
-  
-    if len(repeater_data) > 0:
-        message = t2a(
-        header = ["Frequency","Callsign","PL", "City", "County", "State", "Details"],
-        body = sorted(repeater_data,key=lambda x:(x[4], float(x[0]))),
-        alignments = [Alignment.LEFT]*7,
-        style=PresetStyle.ascii_borderless
-        )
-
-        with open(data_file,"w") as f:
-            f.write(message)
-
-    else:
-        message = "No Data Found"
-
-    await ctx.send(file=discord.File(data_file))
-
-@bot.command(name='hammy')
-async def hammy(ctx):
+@bot.command(
+    name='hammy',
+    description='Help Text',
+    scope=server_id,
+    )
+async def hammy(ctx: interactions.CommandContext):
     
     cmd_list = """
     /callsign <callsign> - Returns callbook data for the callsign queried, including DMR ID and NXDNID, in a DM. ex: /callsign W1AW.
@@ -440,35 +431,14 @@ async def hammy(ctx):
 
     /aprs <callsign+ssid> - Returns last postion beaconed for the station queried. Note that SSID is optional, but it will not do a wildcard or fuzzy search. ex: /aprs W1AW or /aprs W1AW-9
 
-    /repeater - Does a search of the Repeaterbook database and returns repeater information based on the search. Requires one or more of the following parameters. 
-        Only supports North American Repeater Searches. This will create a txt file that can be downloaded, but each time the user runs the command, the existing file for that user
-        is overwritten.
-
-        Note: if a parameter needs a space in it, you will need to enclose the entire parameter in quotes (see example below)
-
-        Parameters:
-        callsign - Callsign of Repeater to search
-        city - City to search
-        state - State to search
-        county - County to search
-        frequency - Frequency to search
-        mode - Mode to search (DMR/D-star/P25/etc)
-
-        EX: /repeater "city=Las Vegas" callsign=wa1abc frequency=145.520
-
     /hammy - This help text
 
     More information about me can be found at https://github.com/n8acl/hammy-discord-bot
     """
 
-    embed = discord.Embed(title = "Hammy Commands",
+    embed = interactions.Embed(title = "Hammy Commands",
         description=cmd_list
     )
-    await ctx.send(embed = embed)
+    await ctx.send(embeds = embed)
 
-
-#############################
-# Main Program
-
-# Start Bot
-bot.run(TOKEN)
+bot.start()
