@@ -2,6 +2,8 @@
 Python based Ham Radio Callsign/APRS Discord lookup bot.
 
 ---
+# NOTE: I AM HAVING PROBLEMS WITH THIS VERSION OF HAMMY. I WILL UPDATE AS SOON AS POSSIBLE.
+
 # Description
 
 This is a Python based, self-hosted, Ham Radio Discord bot that can be added to Ham Radio Discord Servers to add some functionality for various Amatuer Radio Callsign related searches. 
