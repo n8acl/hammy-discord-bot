@@ -2,7 +2,6 @@
 Python based Ham Radio Callsign/APRS Discord lookup bot.
 
 ---
-# NOTE: I AM HAVING PROBLEMS WITH THIS VERSION OF HAMMY. I WILL UPDATE AS SOON AS POSSIBLE.
 
 # Description
 
@@ -26,11 +25,11 @@ This bot pulls data from the following locations:
 |Radioid.net|Used for DMR/NXDN ID Lookups|[https://radioid.net](https://radioid.net)|
 
 ---
-# Upgrading to Version 3.0
+# Upgrading to Version 4.0
 
 #### NOTE: If you are setting up Hammy for the First time, skip to the installation section. Otherwise, follow these steps.
 
-As of Version 3.0, Hammy now supports Discord Slash Commands. This is the new way that Discord provides interaction with bots. "All you have to do is type / and you're ready to use your favorite bot. You can easily see all the commands a bot has, and validation and error handling help you get the command right the first time."
+As of Version 4.0, Hammy now supports Discord Slash Commands. This is the new way that Discord provides interaction with bots. "All you have to do is type / and you're ready to use your favorite bot. You can easily see all the commands a bot has, and validation and error handling help you get the command right the first time."
 
 With this migration, there are some new steps involved with the upgrade.
 
@@ -61,18 +60,18 @@ Once it has been kicked, follow these steps:
 
 Now that the bot is back in the server, we can move on to the next steps.
 
-Hammy now uses ```interactions.py``` as opposed to the ```discord.py``` python library. ```Interactions.py``` is a fork of ```discord.py``` that includes the slash commands functionality.
+Hammy now uses ```pycord``` as opposed to the ```discord.py``` python library. ```pycord``` is a fork of ```discord.py``` that includes the slash commands functionality.
 
-You can leave the ```discord.py``` library installed as it should not interfere with ```interactions.py```, but if you want to remove it, use:
+You will need to remove the ```discord.py``` library as it can interfere with ```pycord```. To remove it use:
 
 ``` bash
 pip3 uninstall discord.py
 ```
 
-You will now need to install the ```interactions.py``` library with:
+You will now need to install the ```pycord``` library with:
 
 ```bash
-pip3 install discord-py-interactions
+pip3 install -U py-cord --pre
 ```
 
 There were some changes to the ```config.py``` file for Hammy, so you will need to back that up somewhere before you pull the new version from Github.
@@ -232,6 +231,10 @@ If you reach out to me and have an error, please include what error you are gett
 ---
 
 ## Change Log
+
+* 05/25/2022 - Version 4.0 Release
+  * Migrated to ```pycord``` discord library for slash command support. This replaces the ```interactions.py``` library and the ```discord.py``` library.
+
 * 03/14/2022 - Version 3.0 Release
   * Migrated to ```interactions.py``` for slash command support
   * Removed Repeater lookup for now. ```interactions.py``` does not support file sending at this point and the returns are too large to send via a message.

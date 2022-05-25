@@ -1,2 +1,2 @@
-discord-py-interactions
+py-cord --pre
 requests
