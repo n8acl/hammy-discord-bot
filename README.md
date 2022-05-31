@@ -204,7 +204,7 @@ And see why it errored or quit and restart. This is useful if you need to contac
 
 # Bot Commands
 
-All Commands can be issued from any text channel, however, all data is always returned in a DM. While callbook data is available online publicly, this helps to keep it at least a little private on the server.
+All Commands can be issued from any text channel and the message will be returned in a message that only you can see. While callbook data is available online publicly, this helps to keep it at least a little private on the server.
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -231,6 +231,8 @@ If you reach out to me and have an error, please include what error you are gett
 ---
 
 ## Change Log
+
+* 05/30/2022 - Removed returning data in a DM to returning it as an ephemeral message using slash commands.
 
 * 05/25/2022 - Version 4.0 Release
   * Migrated to ```pycord``` discord library for slash command support. This replaces the ```interactions.py``` library and the ```discord.py``` library.

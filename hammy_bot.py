@@ -25,6 +25,7 @@ import time
 import xml.etree.ElementTree as et
 from urllib import request, error
 from datetime import datetime, date, time, timedelta
+#from discord.ext import commands
 from geopy.geocoders import Nominatim
 from table2ascii import table2ascii as t2a, PresetStyle, Alignment
 
@@ -306,18 +307,18 @@ async def on_ready():
 @bot.command(description="Callsign to search for.")
 async def callsign(ctx, callsign):
 
-    await ctx.respond("This will take a moment to compile the data. I will send you a DM when I have it ready.", ephemeral=True)
+    await ctx.respond("This will take a moment to compile the data.", ephemeral=True)
 
     embed = discord.Embed(title = "Callbook Data for " + callsign.upper(),
         description=lookup_calldata(callsign.lower()),
     )
 
-    await ctx.author.send(embed = embed)
+    await ctx.respond(embed = embed, ephemeral=True)
 
 @bot.command(description="DMR ID to search for.")
 async def dmr(ctx, dmrid):
 
-    await ctx.respond("This will take a moment to compile the data. I will send you a DM when I have it ready.", ephemeral=True)
+    await ctx.respond("This will take a moment to compile the data.", ephemeral=True)
 
     radioid_payload = {
     "id": dmrid
@@ -336,12 +337,12 @@ async def dmr(ctx, dmrid):
             description="No ID's Found"
         )
 
-    await ctx.author.send(embed = embed)
+    await ctx.respond(embed = embed, ephemeral=True)
 
 @bot.command(description="NXDN ID to search for.")
 async def nxdn(ctx, nxdnid):
 
-    await ctx.respond("This will take a moment to compile the data. I will send you a DM when I have it ready.", ephemeral=True)
+    await ctx.respond("This will take a moment to compile the data.", ephemeral=True)
 
     radioid_payload = {
     "id": nxdnid
@@ -360,17 +361,17 @@ async def nxdn(ctx, nxdnid):
             description="No ID's Found"
         )
 
-    await ctx.author.send(embed = embed)
+    await ctx.respond(embed = embed, ephemeral=True)
 
 @bot.command(description="APRS Station to search for.")
 async def aprs(ctx, callsign):
 
-    await ctx.respond("This will take a moment to compile the data. I will send you a DM when I have it ready.", ephemeral=True)
+    await ctx.respond("This will take a moment to compile the data.", ephemeral=True)
 
     embed = discord.Embed(title = "Last APRS Position",
         description=get_aprs_position(callsign),
     )
-    await ctx.author.send(embed = embed)
+    await ctx.respond(embed = embed, ephemeral=True)
 
 @bot.command(description="Help Text")
 async def hammy(ctx):
