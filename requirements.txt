@@ -1,2 +1,4 @@
 py-cord --pre
 requests
+table2ascii
+geopy

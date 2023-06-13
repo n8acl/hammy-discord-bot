@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+
+  hammybot:
+    image: n8acl/hammy_bot:latest
+    container_name: hammybot
+    volumes:
+      - /<full path to>/config.json:/app/config.json
+    restart: unless-stopped

@@ -1,0 +1,43 @@
+site_name: Hammy, A Ham Radio Discord Bot
+site_url: https://n8acl.github.io/hammy-discord-bot
+repo_url: https://github.com/n8acl/hammy-discord-bot
+theme:
+  name: 'material'
+  font:
+    text: 'Ubuntu'
+    code: 'Ubuntu Mono'
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: light
+      primary: 'amber'
+      accent: 'orange'
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Embrace the dark side
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: 'deep orange'
+      accent: 'amber'
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - def_list
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: true
+
+nav:
+  - Welcome!: index.md
+  - About APRSNotify: about.md
+  - Getting Started: 
+    - Installation/Setup: Installation.md
+    - Obtaining API Keys: obtaining_api_keys.md
+    - Configuration Utility Guide: configuration_guide.md
+    - Configuration for Club Servers (for Server Admins): club_server_admin_guide.md
+    - Running the Script: running_the_script.md
+  - Change Log (changes prior to 2022): changelog.md
+

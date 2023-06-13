@@ -1,39 +1,35 @@
-#################################################################################
-
-# Hammy, a Ham Radio Discord Bot
-# Developed by: Jeff Lehman, N8ACL
-# Current Version: 4.0
-# https://github.com/n8acl/hammy-discord-bot
-
-# Questions? Comments? Suggestions? Contact me one of the following ways:
-# E-mail: n8acl@qsl.net
-# Twitter: @n8acl
-# Discord: Ravendos#7364
-# Mastodon: @n8acl@mastodon.radio
-# Website: https://www.qsl.net/n8acl
-
-###################   DO NOT CHANGE BELOW   #########################
-
+#!/usr/bin/env python
 #############################
 # Import Libraries
-import config as cfg
+# import config as cfg
 import os
 import json
 import requests
 import discord
 import time
 import xml.etree.ElementTree as et
+# import urllib
+# import datetime
+# import geopy
+# import table2ascii
 from urllib import request, error
 from datetime import datetime, date, time, timedelta
 #from discord.ext import commands
 from geopy.geocoders import Nominatim
 from table2ascii import table2ascii as t2a, PresetStyle, Alignment
 
+#############################
+# import config json file
+
+with open("config.json", "r") as read_file:
+    config = json.load(read_file)
+
+#############################
 
 #############################
 # Create Discord Bot
-TOKEN = cfg.discord_bot_token
-bot = discord.Bot(debug_guilds=[cfg.discord_server_id])
+TOKEN = config['discord_bot_token']
+bot = discord.Bot(debug_guilds=[config['discord_server_id']])
 
 #############################
 # Define Variables
@@ -112,7 +108,7 @@ def get_aprs_position(callsign):
     position_payload = {
     'name': callsign,
     'what': 'loc',
-    'apikey': cfg.aprsfikey,
+    'apikey': config['aprsfikey'],
     'format': 'json'
     }
 
@@ -201,7 +197,7 @@ def lookup_calldata(callsign):
         grid = ''
         hamqth_sessionid = ''
 
-        hamqth_getsession_url = "https://www.hamqth.com/xml.php?u=" + cfg.hamqth_username + "&p=" + cfg.hamqth_password
+        hamqth_getsession_url = "https://www.hamqth.com/xml.php?u=" + config['hamqth_username'] + "&p=" + config['hamqth_password']
         session_data = get_api_data(hamqth_getsession_url,'xml') 
 
         root = session_data.getroot()
