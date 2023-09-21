@@ -1,20 +1,14 @@
 #!/usr/bin/env python
 #############################
 # Import Libraries
-# import config as cfg
 import os
 import json
 import requests
 import discord
 import time
 import xml.etree.ElementTree as et
-# import urllib
-# import datetime
-# import geopy
-# import table2ascii
 from urllib import request, error
 from datetime import datetime, date, time, timedelta
-#from discord.ext import commands
 from geopy.geocoders import Nominatim
 from table2ascii import table2ascii as t2a, PresetStyle, Alignment
 
@@ -287,7 +281,7 @@ def lookup_calldata(callsign):
         
         callsigndata = callsigndata + linefeed
         
-    callsigndata = callsigndata + "Source: " + source + linefeed
+    callsigndata = callsigndata + "Source: " + source + ", RadioID.net" + linefeed
 
     # Return whatever data we have found.
     return callsigndata

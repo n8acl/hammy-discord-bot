@@ -1,81 +1,124 @@
 # Installation/Setup
 
 ### Installation Steps
-1) Obtain API Keys
-2) Install needed packages, clone Repo and install library dependencies
-3) Configure the script
-4) Run the Script
+1) Obtain API Keys/Logins
+2) Clone Repo
+3) Configure the Bot
+4) Run the Bot
 
-Remember that all the commands shared here are for Linux. So if you want you can run this on a Linux Server or even a Raspberry Pi, which is how I see most of these run. In fact I have mine running on a Raspberry Pi 3B+.
+Remember that all the commands shared here are for Linux. So if you want you can run this on a Linux Server or even a Raspberry Pi. (Mine is running on a Raspberry Pi 4 2 GB model with many other bots and scripts running with no issues.)
 
-If you want to run this on a Windows or Mac machine, you will need to be able to install Python3, be familiar installing from a requirements.txt and be familiar with how to schedule a recurring task in those OS's.
+If you want to run this on a Windows or Mac machine, you will need to install Python3 and be familiar installing from a requirements.txt.
 
-## Obtaining API Keys
+--- 
 
-The first step in this process will be obtaining the API keys that you need. Some of the services you choose to use may take a couple of days to approve the access to their API's (Twitter for example), so you will want to start this step before installing the script. That way when you are done installing the script and are ready to configure, you have everything ready to go.
+### Obtain API Keys
 
-To obtain your API keys, please see the [Obtaining API Keys](https://github.com/n8acl/aprsnotify/wiki/Obtaining-API-Keys) page in the Wiki.
+First you will need to obtain some API Keys and Logins for this to work. Please see the Obtaining API Keys guide and then come back here.
 
-Once you have your API keys for the services you plan to use, please return here.
+---
 
-## Installing the Script
+### Clone Repo
 
-The next step is cloning the repo to get the script and then installing the needed libraries for the script to work properly.
+Next you will need to clone the repo. Use the following:
 
-This is probably the easiest step to accomplish.
+```bash
+git clone https://github.com/n8acl/hammy-discord-bot.git
+cd hammy-discord-bot
+```
 
-Please run the following commands:
+---
+
+### Configuring the Script
+
+Now we will need to configure the settings for the Bot. You will need to open the ```config.json``` file in the ```hammy-discord-bot``` directory in your editor of choice. Make sure you are in the correct Directory.
+
+In the file you will see the following:
+
+```json
+{
+    "discord_bot_token": "DISCORD BOT TOKEN HERE",
+    "discord_server_id": "DISCORD SERVER ID HERE",
+    "hamqth_username": "HAMQTH USERNAME HERE",
+    "hamqth_password": "HAMQTH PASSWORD HERE",
+    "aprsfikey":"APRS.FI API KEY HERE"
+}
+```
+
+Please put the corresponding Keys into the correct fields. All fields are needed for the script to work.
+
+---
+
+### Running the bot
+
+There are two methods that can be used to run the bot.
+* Docker (Preferred)
+* Screen Session
+
+#### Run using Screen Session Method
+
+To use this method, you will need to install the needed packages, cloning the repo to get the script and then installing the needed libraries for the script to work properly all by hand.
+
+Before running the following commands, please make sure you are in the ```hammy-discord-bot``` directory that was cloned above and that you have already updated the ```config.json``` file:
 
 ```bash
 sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
 
-sudo apt-get install python3 python3-pip git
-
-git clone https://github.com/n8acl/aprsnotify.git
-
-cd aprsnotify
+sudo apt-get install python3 python3-pip git screen
 
 pip3 install -r requirements.txt
+
+screen -R hammy-discord-bot
+
+python3 hammy-discord-bot.py
 ```
 
-Now you have everything installed and are ready to configure the script.
+The Bot will start running and should show up in your server. You can then press ```Ctrl+A+D``` to disconnect from the screen session to allow the bot to run on it's own. If the box that you are running this on ever needs a reboot, you will need to restart the screen session again.
 
-## Configure the Script
-Once you have your API Keys, have cloned the repo and installed everything, you can now start configuring your APRSNotify bot. To start the process, run the following commands:
+#### Running the bot using the Docker Method (Preferred)
+
+The bot can also be run in Docker. This is the preferred method. The bot can be run in 2 different ways with Docker. You can build the container yourself, or you can use a pre-built container from Docker hub.
+
+To use the Docker container, you will need to have Docker and Docker-Compose installed and configured properly. There are plenty of Guides online to accomplish this and support of that is outside the scope of this project/document.
+
+**Prebuilt Container on DockerHub**
+
+To use the prebuilt container, set the keys in the ```config.json``` file and then use the ```docker-compose.yaml``` file provided in the repo.
+
+Make sure to check the yaml file first and set the path to where your ```config.json``` file is. 
+
+Then just use:
 
 ```bash
-cd aprsnotify
-
-python3 an_util.py
+docker-compose pull
+docker-compose up -d
 ```
 
-This will start the setup/configuration utility. The utility is now a Flask app, which means that once it is running, it will start a web server that you can connect to via a web browser and configure the script that way now. I felt this would be easier then the command line based system I used to use. All you will need to do is copy and paste the keys in when asked for them.
+to pull and start the container. The bot should start and connect and show up in your server.
 
-If in the future you want to make changes to the stored data, just run the an_util.py script again and then connect to the web server the same way.
+**Building the Container**
 
-Details about how that script works are found in the [Configuration Utility Guide](https://github.com/n8acl/aprsnotify/wiki/Configuration-Utility-Walkthrough) page on the Wiki.
+To build the container, set the keys in the ```config.json``` file and then use the ```docker-compose.yaml``` file provided in the repo.
 
-## Running the Script
-You will need to configure the scripts settings in the configuration utility first and once you have done that, you can run the script for a test. To run the script once, you can use the command
-```bash
-python3 aprsnotify.py
-```
-in the directory where you have the script's files. When you run this manually, you will see the latest packet you sent sent to your bot account on whatever network you are using. This let's you know that you have everything configured correctly and everything is working fine.
+Make sure to check the yaml file first and change the image line from:
 
-Once you have confirmed that the script is running and everything is working, you can now setup to run the script automatically by adding a cronjob on Linux.
-
-Edit your crontab file:
-
-```bash
-crontab -e
+```yaml
+image: n8acl/hammy_bot:latest
 ```
 
-and then add the following lines to your crontab:
+to
+
+```yaml
+build: .
+```
+
+Also make sure to set the full path to where your ```config.json``` file is. 
+
+Then use:
 
 ```bash
-*/10 * * * * python3 aprsnotify/aprsnotify.py
+docker-compose build
+docker-compose up -d
 ```
 
-In this example, the script runs every 10 minutes. My APRS beacons are sent every 5 minutes from the car, so it will post approximately every other beacon.
-
-On Mac and Windows, you will need to configure a scheduled task for the same effect to happen on those OS's.
+to build and Start the container. The bot should start and show up in your server.

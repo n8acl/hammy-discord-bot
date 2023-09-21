@@ -1,40 +1,46 @@
-###### Current Release 02032023
+# Hammy, a Ham Radio Discord Bot
+Python based Ham Radio Callsign/APRS Discord lookup bot.
 
-Welcome to APRSNotify - a python based bot script designed to send parsed APRS packet data to Various Social Networks. This bot was designed to be used by one person with multiple APRS Trackers to track packets for that one person.
+---
 
-This Wiki is designed as a user guide for the end users of the software.
+# Description
 
-This software is for use by Amateur Radio Operators Only
+This is a Python based, self-hosted, Ham Radio Discord bot that can be added to Ham Radio Discord Servers to add some functionality for various Amatuer Radio Callsign related searches. 
 
-### Important Note
+This bot can be run in one of 2 ways:
 
-As of February 2, 2023, Twitter has announced they are no longer going to provide the free developer API starting February 9, 2023. APRSNotify will no longer support Twitter as a service due to this Starting with the 02032023 release.
+* Docker (Preferred)
+* Screen Session
 
-### Supported Social Networks
+### Searches
+- Search for callsign and get callbook info.
+- Search for callsign+ssid on the APRS network to see the last beaconed packet by a station.
 
-| Function | Supported Services|
-|----------|------------------|
-|Position Packet Data<br>Weather Packet Data| Telegram, Mastodon, Discord, Mattermost, Slack|
-|Message Notification| Telegram, Discord, Pushover, Mattermost, Slack|
-|Send Packet Data<br>to Club Server| Telegram, Discord, Mattermost, Slack|
+Note that this software is intended for use by Amateur Radio Operators only.
 
-### Important Information
+## API's Used
 
-As you will see later in the Configuration Guide, an_til.py is a Flask Application. Flask is a Web Framework for Python that allows you to create web based applications in Python.
+This bot pulls data from the following locations:
 
-When you run the an_util.py, this will start a small webserver for you to connect to in order to make changes to the configurations of the script. 
+| Service | Description | Website |
+|---------|---------|---------|
+|Callook.info|Used for Call Book data lookup|[https://callook.info/](https://callook.info/)|
+|HamQTH.com|Used for Call book data lookup for callsigns not found at callook.info|[https://www.hamqth.com](https://www.hamqth.com)
+|APRS.FI|Used for APRS Data lookup|[https://aprs.fi](https://aprs.fi)|
+|Radioid.net|Used for DMR/NXDN ID Lookups|[https://radioid.net](https://radioid.net)|
 
-I would recommend NOT exposing this web server to the outside world. It is an insecure server and only designed to be run behind a secured firewall. I would also recommend NOT leaving it running all the time for the same reason.
+---
 
-If you need to make changes and are not at home, I would recommend setting up a secure way to connect back into your network, preferably by a VPN, to run and make changes.
-
-You have thusly been warned and it is now your responsibiliy to make sure you are running things securely.
-
-### Contact Me
+## Contact
 If you have questions, please feel free to reach out to me. You can reach me in one of the following ways:
 
-- Discord: Ravendos#7364
+- Discord: Ravendos
 - Mastodon: @n8acl@mastodon.radio
 - E-mail: n8acl@qsl.net
 
+Or open an issue on Github. I will respond to it, and of course you, when I can. Remember, this is a hobby and there are other daily distractors that come first, like work, school and family.
+
 If you reach out to me and have an error, please include what error you are getting and what you were doing. I may also ask you to send me certain files to look at. Otherwise just reach out to me :).
+
+---
+

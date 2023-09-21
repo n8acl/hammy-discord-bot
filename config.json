@@ -1,8 +1,7 @@
 {
-
-    "discord_bot_token": "",
-    "discord_server_id": "",
-    "hamqth_username": "",
-    "hamqth_password": "",
-    "aprsfikey":""
+    "discord_bot_token": "DISCORD BOT TOKEN HERE",
+    "discord_server_id": "DISCORD SERVER ID HERE",
+    "hamqth_username": "HAMQTH USERNAME HERE",
+    "hamqth_password": "HAMQTH PASSWORD HERE",
+    "aprsfikey":"APRS.FI API KEY HERE"
 }
