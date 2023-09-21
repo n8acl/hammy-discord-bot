@@ -32,12 +32,9 @@ markdown_extensions:
 
 nav:
   - Welcome!: index.md
-  - About APRSNotify: about.md
   - Getting Started: 
     - Installation/Setup: Installation.md
     - Obtaining API Keys: obtaining_api_keys.md
-    - Configuration Utility Guide: configuration_guide.md
-    - Configuration for Club Servers (for Server Admins): club_server_admin_guide.md
-    - Running the Script: running_the_script.md
-  - Change Log (changes prior to 2022): changelog.md
+    - Bot Commands: bot-commands.md
+  - Change Log (changes prior to 2023): changelog.md
 

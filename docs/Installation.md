@@ -14,7 +14,7 @@ If you want to run this on a Windows or Mac machine, you will need to install Py
 
 ### Obtain API Keys
 
-First you will need to obtain some API Keys and Logins for this to work. Please see the Obtaining API Keys guide and then come back here.
+First you will need to obtain some API Keys and Logins for this to work. Please see the [Obtaining API Keys](https://n8acl.github.io/hammy-discord-bot/obtaining_api_keys) guide and then come back here.
 
 ---
 
