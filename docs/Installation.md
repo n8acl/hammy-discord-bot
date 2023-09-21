@@ -1,10 +1,10 @@
 # Installation/Setup
 
-### Installation Steps
-1) Obtain API Keys/Logins
-2) Clone Repo
-3) Configure the Bot
-4) Run the Bot
+## Installation Steps
+1. Obtain API Keys/Logins
+2. Clone Repo
+3. Configure the Bot
+4. Run the Bot
 
 Remember that all the commands shared here are for Linux. So if you want you can run this on a Linux Server or even a Raspberry Pi. (Mine is running on a Raspberry Pi 4 2 GB model with many other bots and scripts running with no issues.)
 
@@ -12,13 +12,13 @@ If you want to run this on a Windows or Mac machine, you will need to install Py
 
 --- 
 
-### Obtain API Keys
+## Obtain API Keys
 
 First you will need to obtain some API Keys and Logins for this to work. Please see the [Obtaining API Keys](https://n8acl.github.io/hammy-discord-bot/obtaining_api_keys) guide and then come back here.
 
 ---
 
-### Clone Repo
+## Clone Repo
 
 Next you will need to clone the repo. Use the following:
 
@@ -29,7 +29,7 @@ cd hammy-discord-bot
 
 ---
 
-### Configuring the Script
+## Configuring the Script
 
 Now we will need to configure the settings for the Bot. You will need to open the ```config.json``` file in the ```hammy-discord-bot``` directory in your editor of choice. Make sure you are in the correct Directory.
 
@@ -49,13 +49,13 @@ Please put the corresponding Keys into the correct fields. All fields are needed
 
 ---
 
-### Running the bot
+## Running the bot
 
 There are two methods that can be used to run the bot.
 * Docker (Preferred)
 * Screen Session
 
-#### Run using Screen Session Method
+### Run using Screen Session Method
 
 To use this method, you will need to install the needed packages, cloning the repo to get the script and then installing the needed libraries for the script to work properly all by hand.
 
@@ -75,7 +75,7 @@ python3 hammy-discord-bot.py
 
 The Bot will start running and should show up in your server. You can then press ```Ctrl+A+D``` to disconnect from the screen session to allow the bot to run on it's own. If the box that you are running this on ever needs a reboot, you will need to restart the screen session again.
 
-#### Running the bot using the Docker Method (Preferred)
+### Running the bot using the Docker Method (Preferred)
 
 The bot can also be run in Docker. This is the preferred method. The bot can be run in 2 different ways with Docker. You can build the container yourself, or you can use a pre-built container from Docker hub.
 
